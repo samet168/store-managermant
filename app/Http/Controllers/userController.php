@@ -40,34 +40,32 @@ class userController extends Controller
     /**
      * Store a newly created resource in storage.
      */
+
+
     public function store(Request $request)
-    {
-        //
-        $Validator = Validator::make($request->all(),[
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required',
+{
+    
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|string|email|unique:users,email|max:255',
+        'password' => 'required|string',
+    ]);
 
-        ]);
-        if($Validator->fails()){
-            return response()->json([
-                'status' => 'error',
-                'message' => $Validator->errors()
-            ],400);
-        }else{
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => bcrypt($request->password),
-            ]);
-            return response()->json([
-                'status' => 'success',
-                'message' => 'User created successfully',
-                'data' => $user
-            ],201);
-        }   
-    }
+    
+    $user = User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'password' => Hash::make($request->password),
+        'role' => $request->role,
+    ]);
 
+    // Return success response
+    return response()->json([
+        'status' => 'success',
+        'message' => 'User created successfully',
+        'data' => $user
+    ], 201);
+}
     /**
      * Display the specified resource.
      */
