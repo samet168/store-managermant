@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -42,22 +43,59 @@ class userController extends Controller
      */
 
 
-    public function store(Request $request)
-{
+//     public function store(Request $request)
+// {
     
+//     $request->validate([
+//         'name' => 'required|string|max:255',
+//         'email' => 'required|string|email|unique:users,email|max:255',
+//         'password' => 'required|string',
+//     ]);
+
+    
+//     $user = User::create([
+//         'name' => $request->name,
+//         'email' => $request->email,
+//         'password' => Hash::make($request->password),
+//         'role' => $request->role,
+        
+//     ]);
+
+//     // Return success response
+//     return response()->json([
+//         'status' => 'success',
+//         'message' => 'User created successfully',
+//         'data' => $user
+//     ], 201);
+// }
+
+public function store(Request $request)
+{
+    // Validate the incoming request
     $request->validate([
         'name' => 'required|string|max:255',
         'email' => 'required|string|email|unique:users,email|max:255',
-        'password' => 'required|string',
+        'password' => 'required|string|min:6',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048' // Validate image
     ]);
 
-    
-    $user = User::create([
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
-        'role' => $request->role,
-    ]);
+    // Create a new user instance
+    $user = new User();
+    $user->name = $request->name;
+    $user->email = $request->email;
+    $user->password = Hash::make($request->password);
+    $user->role = $request->role ?? 'staff'; // Default to 'staff'
+
+    // Handle image upload
+    if ($request->hasFile('image')) {
+        $file = $request->file('image');
+        $fileName = time() . '.' . $file->getClientOriginalExtension(); // Unique file name
+        $file->move(public_path('images'), $fileName); // Move to folder
+        $user->image = url('images/' . $fileName); // Save image URL
+    }
+
+    // Save the user
+    $user->save();
 
     // Return success response
     return response()->json([
@@ -95,32 +133,59 @@ class userController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
-        $Validator = Validator::make($request->all(),[
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255',
-            'password' => 'required',
+public function update(Request $request, string $id)
+{
+    $validator = Validator::make($request->all(), [
+        'name' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255|unique:users,email,' . $id, // Allow current email for the user
+        'password' => 'required|string|min:6',
+        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048' // Validate image type
+    ]);
 
-        ]);
-        if($Validator->fails()){
-            return response()->json([
-                'status' => 'error',
-                'message' => $Validator->errors()
-            ],400);
-        }else{
-            $user = User::find($id);
-            $user->name = $request->name;
-            $user->email = $request->email;
-            $user->password = Hash::make($request->password);
-            $user->save();
-            return response()->json([
-                'status' => 'success',
-                'message' => 'User updated successfully',
-                'data' => $user
-            ],200);
-        }
+    if ($validator->fails()) {
+        return response()->json([
+            'status' => 'error',
+            'message' => $validator->errors()
+        ], 400);
     }
+
+    $user = User::find($id);
+    if (!$user) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'User not found'
+        ], 404);
+    }
+    
+    $user->name = $request->name;
+    $user->email = $request->email;
+
+    if ($request->filled('password')) {
+        $user->password = Hash::make($request->password);
+    }
+
+    if ($request->hasFile('image')) {
+        if ($user->image) {
+            $imagePath = public_path('images/' . basename($user->image));
+            if (File::exists($imagePath)) {
+                File::delete($imagePath);
+            }
+        }
+
+        $file = $request->file('image');
+        $fileName = rand(0, 999999999) . '.' . $file->getClientOriginalExtension();
+        $file->move(public_path('images'), $fileName);
+        $user->image = url('images/' . $fileName);
+    }
+
+    $user->save();
+
+    return response()->json([
+        'status' => 'success',
+        'message' => 'User updated successfully',
+        'data' => $user
+    ], 200);
+}
 
     /**
      * Remove the specified resource from storage.
