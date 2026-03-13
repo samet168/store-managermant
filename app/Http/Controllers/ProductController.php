@@ -26,51 +26,6 @@ class ProductController extends Controller
         }
     }
 
-    // public function store(Request $request)
-    // {
-    //     $validator = Validator::make($request->all(), [
-    //         'name' => 'required|string|max:255',
-    //         'description' => 'nullable|string',
-    //         'price' => 'required|numeric',
-    //         'quantity' => 'required|integer',
-    //         'category_id' => 'required|exists:categories,id', 
-    //         'status' => 'nullable|in:active,inactive', 
-    //         'image' => 'nullable|string' 
-    //     ]);
-
-    //     if ($validator->fails()) {
-    //         return response()->json([
-    //             'status' => 'error',
-    //             'message' => $validator->errors()
-    //         ], 400);
-    //     }
-
-    //     $product = new Product();
-    //     $product->name = $request->name;
-    //     $product->description = $request->description;
-    //     $product->price = $request->price;
-    //     $product->quantity = $request->quantity;
-    //     $product->category_id = $request->category_id; // set category
-    //     $product->status = $request->status ?? 'active';
-    //     // $product->image = $request->image ?? null;
-    //     if($request->hasFile('image')) {
-    //         $file = $request->file('image');
-    //         //random name img
-    //         $fileName = rand(0,999999999) . '.' . $file->getClientOriginalExtension();
-    //         //move to folder
-    //         $file -> move(public_path('images'),$fileName);
-    //         //save to database
-    //         $product->image = "http://127.0.0.1:8000/images/" . $fileName;
-
-    //     }
-    //     $product->save();
-
-    //     return response()->json([
-    //         'status' => 'success',
-    //         'message' => 'Product created successfully',
-    //         'data' => $product
-    //     ], 201);
-    // }
     
     public function store(Request $request)
 {
