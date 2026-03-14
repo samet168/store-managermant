@@ -21,7 +21,7 @@ class AuthController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'staff', // default role
+            'role' => 'customer',
         ]);
 
         // generate token
@@ -52,7 +52,25 @@ class AuthController extends Controller
 
         return response()->json([
             'message'=>'Login successful',
-            'token'=>$token
+            'token'=>$token,
+            'user'=>$user
         ]);
     }
+public function logout(Request $request)
+{
+    $user = $request->user();
+
+    if (!$user) {
+        return response()->json(['message' => 'No authenticated user found'], 400);
+    }
+
+    $token = $request->user()->currentAccessToken();
+    if ($token) {
+        
+        $token->delete();
+    }
+
+
+    return response()->json(['message' => 'Logout successful']);
+}
 }

@@ -84,7 +84,7 @@ public function store(Request $request)
     $user->name = $request->name;
     $user->email = $request->email;
     $user->password = Hash::make($request->password);
-    $user->role = $request->role ?? 'customer'; // Default to 'staff'
+    $user->role = $request->role; // Default to 'staff'
 
     // Handle image upload
     if ($request->hasFile('image')) {

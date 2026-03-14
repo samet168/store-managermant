@@ -167,13 +167,13 @@ public function update(Request $request, $id)
 {
     // Validate the incoming request
     $validator = Validator::make($request->all(), [
-        'name' => 'required|string|max:255',
+        'name' => 'nullable|string|max:255',
         'description' => 'nullable|string',
-        'price' => 'required|numeric|min:0', // Ensure price is non-negative
-        'quantity' => 'required|integer|min:1', // Ensure quantity is positive
-        'category_id' => 'required|exists:categories,id', 
+        'price' => 'nullable|numeric|min:0', // Ensure price is non-negative
+        'quantity' => 'nullable|integer|min:1', // Ensure quantity is positive
+        'category_id' => 'nullable|exists:categories,id', 
         'status' => 'nullable|in:active,inactive', 
-        'image' => 'nullable' 
+        'image' => 'nullable' // Ensure valid image upload
     ]);
 
     // Return validation errors if validation fails
@@ -184,7 +184,6 @@ public function update(Request $request, $id)
         ], 400);
     }
 
-    
     $product = Product::find($id);
     if (!$product) {
         return response()->json([
@@ -193,30 +192,57 @@ public function update(Request $request, $id)
         ], 404);
     }
 
-    // Update product details
-    $product->name = $request->name;
-    $product->description = $request->description;
-    $product->price = $request->price;
-    $product->quantity = $request->quantity;
-    $product->category_id = $request->category_id;
-    $product->status = $request->status ?? 'active';
-
-    // Handle image upload if present
-    if ($request->hasFile('image')) {
-        // Delete the old image if it exists
-        if ($product->image) {
-            $imagePath = public_path('images/' . basename($product->image));
-            if (File::exists($imagePath)) {
-                File::delete($imagePath);
-            }
-        }
-
-        // Upload the new image
-        $file = $request->file('image');
-        $fileName = rand(0, 999999999) . '.' . $file->getClientOriginalExtension(); // Random file name
-        $file->move(public_path('images'), $fileName); // Move to folder
-        $product->image = url('images/' . $fileName); 
+    // Update product details if provided
+    if ($request->has('name')) {
+        $product->name = $request->name;
     }
+    if ($request->has('description')) {
+        $product->description = $request->description;
+    }
+    if ($request->has('price')) {
+        $product->price = $request->price;
+    }
+    if ($request->has('quantity')) {
+        $product->quantity = $request->quantity;
+    }
+    if ($request->has('category_id')) {
+        $product->category_id = $request->category_id;
+    }
+    if ($request->has('status')) {
+        $product->status = $request->status;
+    }
+
+        // Handle image upload if present
+   if($request->hasFile('image')) {
+                    //ករណីproductមានimg
+            if(!$product->image){
+                    //http://127.0.0.1:8000/api/product/6 
+                    $image = $product->image;//យក Img នៅលើ database
+
+                    //basename = get name img
+                    $imageName = basename($image);
+
+                    //យក Img នៅលើ folder images
+                    $imagePath = public_path("images/$imageName");
+                    if(File::exists($imagePath)){
+                        File::delete($imagePath);
+                        //delete and unlink =ស្មើរនិងការលុប
+                    };
+            }
+            //ករណីមិនមានimg
+            
+            $file = $request->file('image');
+            //random name img
+            $fileName = rand(0,999999999) . '.' . $file->getClientOriginalExtension();
+            //move to folder
+            $file -> move(public_path('images'),$fileName);
+            //save to database
+            $product->image = "http://127.0.0.1:8000/images/" . $fileName;
+
+            $product->save();
+        
+        }
+        
 
     // Save updated product
     $product->save();
