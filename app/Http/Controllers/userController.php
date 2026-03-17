@@ -41,33 +41,23 @@ class userController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-
-
-//     public function store(Request $request)
-// {
+public function listUsers(Request $request)
+{
     
-//     $request->validate([
-//         'name' => 'required|string|max:255',
-//         'email' => 'required|string|email|unique:users,email|max:255',
-//         'password' => 'required|string',
-//     ]);
+    $limit = 5;
+
+   
+    $users = User::orderBy('created_at', 'desc')->paginate($limit);
 
     
-//     $user = User::create([
-//         'name' => $request->name,
-//         'email' => $request->email,
-//         'password' => Hash::make($request->password),
-//         'role' => $request->role,
-        
-//     ]);
+    return response()->json([
+        'data' => $users->items(),   
+        'current_page' => $users->currentPage(),
+        'last_page' => $users->lastPage(),
+        'total' => $users->total(),
+    ]);
+}
 
-//     // Return success response
-//     return response()->json([
-//         'status' => 'success',
-//         'message' => 'User created successfully',
-//         'data' => $user
-//     ], 201);
-// }
 
 public function store(Request $request)
 {
@@ -84,14 +74,14 @@ public function store(Request $request)
     $user->name = $request->name;
     $user->email = $request->email;
     $user->password = Hash::make($request->password);
-    $user->role = $request->role; // Default to 'staff'
+    $user->role = $request->role; 
 
     // Handle image upload
     if ($request->hasFile('image')) {
         $file = $request->file('image');
-        $fileName = time() . '.' . $file->getClientOriginalExtension(); // Unique file name
-        $file->move(public_path('images'), $fileName); // Move to folder
-        $user->image = url('images/' . $fileName); // Save image URL
+        $fileName = time() . '.' . $file->getClientOriginalExtension(); 
+        $file->move(public_path('images'), $fileName); 
+        $user->image = url('images/' . $fileName); 
     }
 
     // Save the user
@@ -135,19 +125,7 @@ public function store(Request $request)
      */
 public function update(Request $request, string $id)
 {
-    $validator = Validator::make($request->all(), [
-        'name' => 'required|string|max:255',
-        'email' => 'required|string|email|max:255|unique:users,email,' . $id, // Allow current email for the user
-        'password' => 'required|string|min:6',
-        'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048' // Validate image type
-    ]);
 
-    if ($validator->fails()) {
-        return response()->json([
-            'status' => 'error',
-            'message' => $validator->errors()
-        ], 400);
-    }
 
     $user = User::find($id);
     if (!$user) {

@@ -16,21 +16,23 @@ use App\Http\Controllers\CustomerController;
 // Authentication
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
+Route::get('/products/{id}', [ProductController::class, 'show']);
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
-
+ 
 // View products and categories (public)
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/categories', [CategoryController::class, 'index']);
 
 
 Route::middleware(['auth:sanctum'])->group(function () {
-
+// Route::get('/products/{id}', [ProductController::class, 'edit']);
 
     Route::middleware('role:admin')->prefix('admin')->group(function () {
 
         // Users Management
         Route::get('/users', [UserController::class, 'index']);
         Route::post('/users', [UserController::class, 'store']);
+        Route::get('/users', [UserController::class, 'listUsers']);
         Route::get('/users/{id}', [UserController::class, 'edit']);
         Route::post('/users/{id}', [UserController::class, 'update']);
         Route::delete('/users/{id}', [UserController::class, 'destroy']);
@@ -44,6 +46,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         // Products
         Route::get('/products', [ProductController::class, 'index']);
+        Route::get('/products/list',[ProductController::class, 'list']);
         Route::post('/products', [ProductController::class, 'store']);
         Route::get('/products/{id}', [ProductController::class, 'edit']);
         Route::post('/products/{id}', [ProductController::class, 'update']);
@@ -135,6 +138,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         // View own orders
         Route::get('/orders/{id}', [OrderController::class, 'show']);
+        Route::get('/products/{id}', [ProductController::class, 'edit']);
     });
 
 });

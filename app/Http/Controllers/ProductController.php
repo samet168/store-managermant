@@ -26,21 +26,34 @@ class ProductController extends Controller
         }
     }
 
-    
+
+public function list(Request $request)
+{
+   
+    $limit = 10;
+    $products = Product::with('category') 
+                       ->orderBy('created_at', 'desc')
+                       ->paginate($limit); 
+
+    return response()->json([
+        'data' => $products->items(),   
+        'current_page' => $products->currentPage(),
+        'last_page' => $products->lastPage(),
+        'total' => $products->total(),
+    ]);
+}
     public function store(Request $request)
 {
-    // Validate the incoming request
+    
     $validator = Validator::make($request->all(), [
         'name' => 'required|string|max:255',
         'description' => 'nullable|string',
         'price' => 'required|numeric|min:0',
         'quantity' => 'required|integer|min:1', 
-        'category_id' => 'required|exists:categories,id',
-        'status' => 'nullable|in:active,inactive',
         'image' => 'nullable' 
     ]);
 
-    // Handle validation failures
+    
     if ($validator->fails()) {
         return response()->json([
             'status' => 'error',
@@ -280,6 +293,19 @@ public function update(Request $request, $id)
             'status' => true,
             'message'=>"product deleted successfully",
         ],200);
+    }
+    public function show($id){
+        $product = Product::find($id);
+        if(!$product){
+            return response()->json([
+                'status'=>'error',
+                'message'=>'Product not found'
+            ], 404);
+        }
+        return response()->json([
+            'status'=>'success',
+            'data'=>$product
+        ]);
     }
 }
 
