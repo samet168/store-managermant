@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Supplier;
+use Illuminate\Cache\RateLimiting\Limit;
 
 class SupplierController extends Controller
 {
@@ -25,6 +26,31 @@ class SupplierController extends Controller
         ]);
     }
 
+public function list(Request $request)
+{
+    $limit = 5; // items per page
+    $search = $request->input('search'); // get search query from request
+
+    // Build query
+    $query = Supplier::orderBy('created_at', 'desc');
+
+    // If search exists, filter by name
+    if ($search) {
+        $query->where('name', 'like', '%' . $search . '%');
+    }
+
+    // Paginate results
+    $suppliers = $query->paginate($limit);
+
+    // Return structured JSON
+    return response()->json([
+        'data' => $suppliers->items(),
+        'current_page' => $suppliers->currentPage(),
+        'last_page' => $suppliers->lastPage(),
+        'total' => $suppliers->total(),
+    ]);
+}
+    
 
     // Store new supplier
     public function store(Request $request)

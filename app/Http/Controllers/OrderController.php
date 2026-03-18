@@ -15,6 +15,29 @@ class OrderController extends Controller
         return response()->json($orders);
     }
 
+    public function list(Request $request) {
+        $limit = 10;
+        $search = $request->input('search');
+
+        $query = Order::with('details.product', 'customer')->orderBy('created_at', 'desc');
+
+        if ($search) {
+            $query->whereHas('customer', function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            })
+            ->orWhere('status', 'like', "%{$search}%");
+        }
+
+        $orders = $query->paginate($limit);
+
+        return response()->json([
+            'data' => $orders->items(),
+            'current_page' => $orders->currentPage(),
+            'last_page' => $orders->lastPage(),
+            'total' => $orders->total(),
+        ]);
+    }
+    
     // Show single order
     public function show($id) {
         $order = Order::with('details.product')->findOrFail($id);
@@ -41,7 +64,7 @@ class OrderController extends Controller
         // Create order with auto order_date
         $order = Order::create([
             'customer_id' => $request->customer_id,
-            'order_date' => now(),  // auto current datetime
+            
             'total_amount' => $totalAmount,
             'status' => $request->status ?? 'pending',
         ]);

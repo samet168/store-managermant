@@ -24,6 +24,30 @@ class CategoryController extends Controller
         }
 
     }
+public function list(Request $request)
+{
+    $limit = 10; // items per page
+
+    // Capture search query
+    $search = $request->query('search');
+
+    // Build query
+    $query = Category::query();
+
+    if ($search) {
+        $query->where('name', 'like', "%{$search}%")
+              ->orWhere('description', 'like', "%{$search}%");
+    }
+
+    $categories = $query->orderBy('created_at', 'desc')->paginate($limit);
+
+    return response()->json([
+        'data' => $categories->items(),
+        'current_page' => $categories->currentPage(),
+        'last_page' => $categories->lastPage(),
+        'total' => $categories->total(),
+    ]);
+}
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -63,17 +87,7 @@ class CategoryController extends Controller
         ],200);
     }
     public function update(Request $request, $id){
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255|unique:categories,name,' . $id,
-            'description' => 'nullable|string',
-        ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $validator->errors()
-            ], 400);
-        }
 
         $category = Category::find($id);
         if($category == null){

@@ -39,6 +39,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         // Categories
         Route::get('/categories', [CategoryController::class, 'index']);
+        Route::get('/categories',[CategoryController::class, 'list']);
         Route::post('/categories', [CategoryController::class, 'store']);
         Route::get('/categories/{id}', [CategoryController::class, 'edit']);
         Route::post('/categories/{id}', [CategoryController::class, 'update']);
@@ -54,6 +55,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         // Suppliers
         Route::get('/suppliers', [SupplierController::class,'index']);
+        Route::get('/suppliers', [SupplierController::class,'list']);
         Route::post('/suppliers', [SupplierController::class,'store']);
         Route::get('/suppliers/{id}', [SupplierController::class,'show']);
         Route::post('/suppliers/{id}', [SupplierController::class,'update']);
@@ -67,7 +69,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('/purchases/{id}', [PurchaseController::class,'destroy']);
 
         // Orders
-        Route::get('/orders', [OrderController::class, 'index']);
+        Route::get('/orders', [OrderController::class, 'list']); // main paginated + search
+        Route::get('/orders/all', [OrderController::class, 'index']); // optional: list all orders without pagination
         Route::post('/orders', [OrderController::class, 'store']);
         Route::get('/orders/{id}', [OrderController::class, 'show']);
         Route::post('/orders/{id}', [OrderController::class, 'update']);

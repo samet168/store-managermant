@@ -29,14 +29,20 @@ class ProductController extends Controller
 
 public function list(Request $request)
 {
-   
     $limit = 10;
-    $products = Product::with('category') 
-                       ->orderBy('created_at', 'desc')
-                       ->paginate($limit); 
+    $search = $request->input('search');
+
+    $query = Product::with('category')->orderBy('created_at', 'desc');
+
+    if ($search) {
+        $query->where('name', 'like', "%{$search}%")
+              ->orWhere('description', 'like', "%{$search}%");
+    }
+
+    $products = $query->paginate($limit);
 
     return response()->json([
-        'data' => $products->items(),   
+        'data' => $products->items(),
         'current_page' => $products->currentPage(),
         'last_page' => $products->lastPage(),
         'total' => $products->total(),

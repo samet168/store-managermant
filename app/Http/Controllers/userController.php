@@ -43,15 +43,24 @@ class userController extends Controller
      */
 public function listUsers(Request $request)
 {
-    
     $limit = 5;
 
-   
-    $users = User::orderBy('created_at', 'desc')->paginate($limit);
+    // Start query
+    $query = User::query();
 
-    
+    // Check search input
+    if ($request->has('search') && $request->search != '') {
+        $search = $request->search;
+        $query->where('name', 'like', "%{$search}%")
+              ->orWhere('email', 'like', "%{$search}%");
+    }
+
+    // Order and paginate
+    $users = $query->orderBy('created_at', 'desc')->paginate($limit);
+
+    // Return JSON
     return response()->json([
-        'data' => $users->items(),   
+        'data' => $users->items(),
         'current_page' => $users->currentPage(),
         'last_page' => $users->lastPage(),
         'total' => $users->total(),
