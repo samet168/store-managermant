@@ -11,7 +11,7 @@ use App\Http\Controllers\StockLogController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\CustomerController;
-
+use Illuminate\Support\Facades\Request;
 
 // Authentication
 Route::post('/login', [AuthController::class, 'login']);
@@ -107,13 +107,21 @@ Route::middleware(['auth:sanctum'])->group(function () {
         // View products
         Route::get('/products', [ProductController::class, 'index']);
         Route::post('/products/{id}', [ProductController::class, 'update']);
-
+        Route::get('/products/list', [ProductController::class, 'list']);
+        Route::get('/categories', [CategoryController::class, 'index']);
+        Route::get('/products/{id}', [ProductController::class, 'show']);
         // Stock management
         Route::get('/stock-logs', [StockLogController::class, 'index']);
+        Route::get('/stock-logs/list', [StockLogController::class, 'list']);
+        Route::get('/stock-logs/{id}', [StockLogController::class, 'show']);
         Route::post('/stock-logs', [StockLogController::class, 'store']);
+        Route::post('/stock-logs/{id}', [StockLogController::class, 'update']);
+
+        Route::get('/customers', [CustomerController::class, 'index']);
 
         // Orders
         Route::get('/orders', [OrderController::class, 'index']);
+        Route::get('/orders/list', [OrderController::class, 'list']);
         Route::post('/orders', [OrderController::class, 'store']);
         Route::get('/orders/{id}', [OrderController::class, 'show']);
     });
