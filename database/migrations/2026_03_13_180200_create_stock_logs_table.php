@@ -16,7 +16,7 @@ Schema::create('stock_logs', function (Blueprint $table) {
     $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
     $table->integer('change'); // + or - quantity
     $table->string('reason')->nullable(); // sale, purchase, adjustment
-    $table->dateTime('date')->now();
+   $table->dateTime('date')->nullable();
     $table->timestamps();
 });
     }

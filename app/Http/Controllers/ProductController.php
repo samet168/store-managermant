@@ -10,44 +10,108 @@ use Illuminate\Support\Facades\Validator;
 class ProductController extends Controller
 {
     //
-    public function index()
-    {
-        $products = Product::all();
-        if($products == null){
-            return response()->json([
-                'status' => 'error',
-                'message' => 'No products found'
-            ],204);
-        }else{
-            return response()->json([
-                'status' => 'success',
-                'data' => $products
-            ],200);
+    public function index(Request $request)
+        {
+        $limit = 10;
+
+        $search = $request->input('search');
+        $category_id = $request->input('category_id');
+
+        $query = Product::with('category')->orderBy('created_at', 'desc');
+
+        // 🔍 SEARCH (name + description)
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                ->orWhere('description', 'like', "%{$search}%");
+            });
         }
+
+        // 📂 FILTER BY CATEGORY
+        if ($category_id) {
+            $query->where('category_id', $category_id);
+        }
+
+        $products = $query->paginate($limit);
+
+        return response()->json([
+            'data' => $products->items(),
+            'current_page' => $products->currentPage(),
+            'last_page' => $products->lastPage(),
+            'total' => $products->total(),
+        ]);
+
     }
+    // {
+    //     $products = Product::all();
+    //     if($products == null){
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => 'No products found'
+    //         ],204);
+    //     }else{
+    //         return response()->json([
+    //             'status' => 'success',
+    //             'data' => $products
+    //         ],200);
+    //     }
+    // }
 
 
-public function list(Request $request)
-{
-    $limit = 10;
-    $search = $request->input('search');
+// public function list(Request $request)
+// {
+//     $limit = 10;
+//     $search = $request->input('search');
 
-    $query = Product::with('category')->orderBy('created_at', 'desc');
+//     $query = Product::with('category')->orderBy('created_at', 'desc');
 
-    if ($search) {
-        $query->where('name', 'like', "%{$search}%")
-              ->orWhere('description', 'like', "%{$search}%");
+//     if ($search) {
+//         $query->where('name', 'like', "%{$search}%")
+//               ->orWhere('description', 'like', "%{$search}%");
+//     }
+
+//     $products = $query->paginate($limit);
+
+//     return response()->json([
+//         'data' => $products->items(),
+//         'current_page' => $products->currentPage(),
+//         'last_page' => $products->lastPage(),
+//         'total' => $products->total(),
+//     ]);
+// }
+
+    public function list(Request $request)
+    {
+        $limit = 10;
+
+        $search = $request->input('search');
+        $category_id = $request->input('category_id');
+
+        $query = Product::with('category')->orderBy('created_at', 'desc');
+
+        // 🔍 SEARCH (name + description)
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        // 📂 FILTER BY CATEGORY
+        if ($category_id) {
+            $query->where('category_id', $category_id);
+        }
+
+        $products = $query->paginate($limit);
+
+        return response()->json([
+            'data' => $products->items(),
+            'current_page' => $products->currentPage(),
+            'last_page' => $products->lastPage(),
+            'total' => $products->total(),
+        ]);
+
     }
-
-    $products = $query->paginate($limit);
-
-    return response()->json([
-        'data' => $products->items(),
-        'current_page' => $products->currentPage(),
-        'last_page' => $products->lastPage(),
-        'total' => $products->total(),
-    ]);
-}
     public function store(Request $request)
 {
     

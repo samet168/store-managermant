@@ -16,7 +16,8 @@ use App\Http\Controllers\CustomerController;
 // Authentication
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
-Route::get('/products/{id}', [ProductController::class, 'show']);
+Route::get('/products/list', [ProductController::class, 'list']); // ✅ first
+Route::get('/products/{id}', [ProductController::class, 'show']); // ❗ after
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
  
 // View products and categories (public)
@@ -69,8 +70,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('/purchases/{id}', [PurchaseController::class,'destroy']);
 
         // Orders
-        Route::get('/orders', [OrderController::class, 'list']); // main paginated + search
-        Route::get('/orders/all', [OrderController::class, 'index']); // optional: list all orders without pagination
+        Route::get('/orders/list', [OrderController::class, 'list']); // main paginated + search
+        Route::get('/orders', [OrderController::class, 'index']); // optional: list all orders without pagination
         Route::post('/orders', [OrderController::class, 'store']);
         Route::get('/orders/{id}', [OrderController::class, 'show']);
         Route::post('/orders/{id}', [OrderController::class, 'update']);
@@ -78,9 +79,23 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         // Stock Logs
         Route::get('/stock-logs', [StockLogController::class, 'index']);
+        Route::get('/stock-logs/list', [StockLogController::class, 'list']);
         Route::get('/stock-logs/{id}', [StockLogController::class, 'show']);
         Route::post('/stock-logs', [StockLogController::class, 'store']);
+        Route::post('/stock-logs/{id}', [StockLogController::class, 'update']);
         Route::delete('/stock-logs/{id}', [StockLogController::class, 'destroy']);
+
+
+
+        //
+        
+        Route::get('/customers/list', [CustomerController::class, 'list']);
+        Route::get('/customers', [CustomerController::class, 'index']);
+        Route::post('/customers', [CustomerController::class, 'store']);
+        Route::get('/customers/{id}', [CustomerController::class, 'show']);
+        Route::post('/customers/{id}', [CustomerController::class, 'update']);
+        Route::delete('/customers/{id}', [CustomerController::class, 'destroy']);
+
     });
 
 
