@@ -150,29 +150,45 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
 
-    Route::middleware('role:supplier')->prefix('supplier')->group(function () {
+Route::middleware('role:supplier')->prefix('supplier')->group(function () {
 
-        // View purchase orders
-        Route::get('/purchases', [PurchaseController::class,'index']);
-        Route::get('/purchases/{id}', [PurchaseController::class,'show']);
+    // ✅ បន្ថែម ២ routes នេះ
+    Route::get('/suppliers', [SupplierController::class, 'index']);
 
-        // Update delivery status
-        Route::post('/purchases/{id}', [PurchaseController::class,'update']);
-    });
+    // routes ដែលមានរួចហើយ
+    Route::get('/products', [ProductController::class, 'index']);
+    Route::get('/products/list', [ProductController::class, 'list']);
+    Route::get('/categories', [CategoryController::class, 'index']);
+    Route::get('/products/{id}', [ProductController::class, 'show']);
 
+    Route::get('/purchases', [PurchaseController::class, 'index']);
+    Route::get('/purchases/list', [PurchaseController::class, 'list']);
+    Route::post('/purchases', [PurchaseController::class, 'store']);
+    Route::get('/purchases/{id}', [PurchaseController::class, 'show']);
+    Route::post('/purchases/{id}', [PurchaseController::class, 'update']);
+});
 
 
     Route::middleware('role:customer')->prefix('customer')->group(function () {
 
         // View products
-        Route::get('/products', [ProductController::class, 'index']);
 
+        Route::get('/products', [ProductController::class, 'index']);
+        Route::get('/products/list', [ProductController::class, 'list']);
+        Route::get('/categories', [CategoryController::class, 'index']);
+        Route::get('/products/{id}', [ProductController::class, 'show']);
+        Route::get('/products/{id}', [ProductController::class, 'edit']);
+        Route::post('/products/{id}', [ProductController::class, 'update']);
         // Create orders
+        Route::get('/orders', [OrderController::class, 'index']);
+        Route::get('/orders/list', [OrderController::class, 'list']);
         Route::post('/orders', [OrderController::class, 'store']);
+        Route::get('/orders/{id}', [OrderController::class, 'show']);
+
+        Route::get('/customers', [CustomerController::class, 'index']);
 
         // View own orders
-        Route::get('/orders/{id}', [OrderController::class, 'show']);
-        Route::get('/products/{id}', [ProductController::class, 'edit']);
+
     });
 
 });

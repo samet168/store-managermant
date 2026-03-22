@@ -25,6 +25,31 @@ class PurchaseController extends Controller
         ]);
     }
 
+    public function list(Request $request) {
+        $limit = 5;
+        $search = $request->input('search');
+
+        $query = Purchase::with('details.product', 'supplier')
+            ->orderBy('created_at', 'desc');
+
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->whereHas('supplier', function($q2) use ($search) {
+                    $q2->where('name', 'like', "%{$search}%");
+                })
+                ->orWhere('status', 'like', "%{$search}%");
+            });
+        }
+
+        $purchases = $query->paginate($limit);
+
+        return response()->json([
+            'data' => $purchases->items(),
+            'current_page' => $purchases->currentPage(),
+            'last_page' => $purchases->lastPage(),
+            'total' => $purchases->total(),
+        ]);
+    }
     // Store new purchase
     public function store(Request $request)
     {
