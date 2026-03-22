@@ -117,7 +117,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/stock-logs', [StockLogController::class, 'store']);
         Route::post('/stock-logs/{id}', [StockLogController::class, 'update']);
 
-        Route::get('/customers', [CustomerController::class, 'index']);
+        Route::get('/users', [UserController::class, 'index']);
 
         // Orders
         Route::get('/orders', [OrderController::class, 'index']);
@@ -140,6 +140,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/orders/list', [OrderController::class, 'list']);
         Route::post('/orders', [OrderController::class, 'store']);
         Route::get('/orders/{id}', [OrderController::class, 'show']);
+        Route::get('/users', [UserController::class, 'index']);
 
         // Customers
         Route::get('/customers/list', [CustomerController::class, 'list']);
@@ -171,21 +172,22 @@ Route::middleware('role:supplier')->prefix('supplier')->group(function () {
 
     Route::middleware('role:customer')->prefix('customer')->group(function () {
 
-        // View products
-
         Route::get('/products', [ProductController::class, 'index']);
         Route::get('/products/list', [ProductController::class, 'list']);
-        Route::get('/categories', [CategoryController::class, 'index']);
         Route::get('/products/{id}', [ProductController::class, 'show']);
-        Route::get('/products/{id}', [ProductController::class, 'edit']);
-        Route::post('/products/{id}', [ProductController::class, 'update']);
-        // Create orders
+
         Route::get('/orders', [OrderController::class, 'index']);
         Route::get('/orders/list', [OrderController::class, 'list']);
-        Route::post('/orders', [OrderController::class, 'store']);
+        Route::post('/orders', [OrderController::class, 'store']); 
         Route::get('/orders/{id}', [OrderController::class, 'show']);
+        Route::post('/orders/{id}', [OrderController::class, 'update']);
 
         Route::get('/customers', [CustomerController::class, 'index']);
+        Route::get('/profile', [CustomerController::class, 'profile']);
+
+        Route::get('/users', [UserController::class, 'index']);
+
+
 
         // View own orders
 

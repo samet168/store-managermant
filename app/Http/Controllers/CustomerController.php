@@ -8,6 +8,15 @@ use Illuminate\Support\Facades\Validator;
 
 class CustomerController extends Controller
 {
+
+
+// CustomerController.php
+public function profile(Request $request) {
+    $customer = $request->user(); // ← Sanctum auth user
+    return response()->json([
+        'data' => $customer
+    ]);
+}
     // Show all customers
     public function index()
     {
@@ -46,29 +55,67 @@ class CustomerController extends Controller
     }
 
     // Create customer
-    public function store(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:customers,email',
-            'phone' => 'required|string',
-            'address' => 'nullable|string',
-        ]);
+    // public function store(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'name' => 'required|string|max:255',
+    //         'email' => 'required|email|unique:customers,email',
+    //         'phone' => 'required|string',
+    //         'address' => 'nullable|string',
+    //     ]);
 
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => $validator->errors()
-            ], 400);
-        }
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'message' => $validator->errors()
+    //         ], 400);
+    //     }
 
-        $customer = Customer::create($request->all());
+    //     $customer = Customer::create($request->all());
 
+    //     return response()->json([
+    //         'status' => 'success',
+    //         'data' => $customer
+    //     ], 201);
+    // }
+    public function store(Request $request) {
+    $validator = Validator::make($request->all(), [
+        'name'     => 'required|string|max:255',
+        'email'    => 'required|email|unique:customers,email',
+        'password' => 'required|string|min:8',  // ← បន្ថែម
+        'phone'    => 'required|string',
+        'address'  => 'nullable|string',
+        'image'    => 'nullable|image|max:2048', // ← បន្ថែម
+    ]);
+
+    if ($validator->fails()) {
         return response()->json([
-            'status' => 'success',
-            'data' => $customer
-        ], 201);
+            'status'  => 'error',
+            'message' => $validator->errors()
+        ], 400);
     }
+
+    // Handle image upload
+    $imagePath = null;
+    if ($request->hasFile('image')) {
+        $imagePath = $request->file('image')->store('images', 'public');
+        $imagePath = asset('images/' . $imagePath);
+    }
+
+    $customer = Customer::create([
+        'name'     => $request->name,
+        'email'    => $request->email,
+        'password' => $request->password, // auto hashed via $casts
+        'phone'    => $request->phone,
+        'address'  => $request->address,
+        'image'    => $imagePath,
+    ]);
+
+    return response()->json([
+        'status' => 'success',
+        'data'   => $customer
+    ], 201);
+}
 
     // Update customer
     public function update(Request $request, $id)

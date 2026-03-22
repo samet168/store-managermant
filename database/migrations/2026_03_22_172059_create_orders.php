@@ -11,14 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-    Schema::create('orders', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('customer_id')->constrained('customers')->onDelete('cascade');
-        $table->dateTime('order_date');
-        $table->decimal('total_amount', 10, 2);
-        $table->string('status')->default('pending'); // pending, completed, canceled
-        $table->timestamps();
-    });
+Schema::create('orders', function (Blueprint $table) {
+    $table->id();
+
+    $table->foreignId('user_id')
+          ->constrained('users')
+          ->onDelete('cascade');
+
+    $table->dateTime('order_date');
+    $table->decimal('total_amount', 10, 2);
+    $table->string('status')->default('pending');
+
+    $table->timestamps();
+});
     }
 
     /**
