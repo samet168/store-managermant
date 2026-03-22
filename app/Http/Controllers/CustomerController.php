@@ -25,6 +25,25 @@ class CustomerController extends Controller
             'data' => $customers
         ], 200);
     }
+    public function list(Request $request) {
+        $limit = 5;
+        $search = $request->input('search');
+
+        $query = Customer::orderBy('created_at', 'desc');
+
+        if ($search) {
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        $customers = $query->paginate($limit);
+
+        return response()->json([
+            'data' => $customers->items(),
+            'current_page' => $customers->currentPage(),
+            'last_page' => $customers->lastPage(),
+            'total' => $customers->total(),
+        ]);
+    }
 
     // Create customer
     public function store(Request $request)

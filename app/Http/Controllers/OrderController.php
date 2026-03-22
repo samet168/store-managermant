@@ -43,8 +43,8 @@ public function list(Request $request) {
     
     // Show single order
     public function show($id) {
-        $order = Order::with('details.product')->findOrFail($id);
-        return response()->json($order);
+        $order = Order::with('details.product', 'customer')->find($id);
+            return response()->json($order);
     }
 
     // Create order

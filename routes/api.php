@@ -131,14 +131,22 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
         // View products
         Route::get('/products', [ProductController::class, 'index']);
-
+        
+        Route::get('/products/list', [ProductController::class, 'list']);
+        Route::get('/products/{id}', [ProductController::class, 'show']);
+        
         // Create orders / invoices
+        Route::get('/orders', [OrderController::class, 'index']);
+        Route::get('/orders/list', [OrderController::class, 'list']);
         Route::post('/orders', [OrderController::class, 'store']);
         Route::get('/orders/{id}', [OrderController::class, 'show']);
 
         // Customers
+        Route::get('/customers/list', [CustomerController::class, 'list']);
+        Route::get('/customers/{id}', [CustomerController::class, 'show']);
         Route::get('/customers', [CustomerController::class, 'index']);
         Route::post('/customers', [CustomerController::class, 'store']);
+        
     });
 
 
