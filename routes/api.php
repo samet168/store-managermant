@@ -178,6 +178,8 @@ Route::middleware('role:supplier')->prefix('supplier')->group(function () {
 
         Route::get('/orders', [OrderController::class, 'index']);
         Route::get('/orders/list', [OrderController::class, 'list']);
+        Route::get('/orderS', [OrderController::class, 'indexS']);
+        Route::get('/orders/listS', [OrderController::class, 'listS']);
         Route::post('/orders', [OrderController::class, 'store']); 
         Route::get('/orders/{id}', [OrderController::class, 'show']);
         Route::post('/orders/{id}', [OrderController::class, 'update']);
